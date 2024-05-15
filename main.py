@@ -69,3 +69,7 @@ async def translate_audio(audio_translation: AudioTranslation):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/")
+async def read_root():
+    return {"message": "welcome"}
