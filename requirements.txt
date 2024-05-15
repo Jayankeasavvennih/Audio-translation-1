@@ -2,7 +2,7 @@ annotated-types==0.6.0
 
 anyio==4.3.0
 
-assemblyai==0.26.0
+assemblyai
 
 blinker==1.8.2
 
@@ -30,15 +30,15 @@ email_validator==2.1.1
 
 exceptiongroup==1.2.1
 
-fastapi==0.111.0
+fastapi
 
 fastapi-cli==0.0.3
 
 Flask==3.0.3
 
-google-trans-new==1.1.9
+google-trans-new
 
-googletrans==4.0.0rc1
+googletrans
 
 gTTS==2.5.1
 
