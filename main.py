@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile
 from pydantic import BaseModel
 import assemblyai as aai
 from googletrans import Translator
@@ -23,21 +23,24 @@ app.add_middleware(
 aai.settings.api_key = "488d4da6a90d4c67b93b99866def037f"
 
 class AudioTranslation(BaseModel):
-    url: str
+    audio_file: UploadFile
 
 @app.post("/translate")
 async def translate_audio(audio_translation: AudioTranslation):
     try:
-        url = audio_translation.url
-
-        # Check if URL is accessible
-        response = requests.get(url)
-        if response.status_code != 200:
-            raise HTTPException(status_code=404, detail="Failed to access audio file.")
+        # Create a directory to store the audio files within the server
+        upload_dir = "uploaded_audio"
+        os.makedirs(upload_dir, exist_ok=True)
+        # Save the uploaded audio file to disk
+        audio_file_path = os.path.join(upload_dir, audio_translation.audio_file.filename)
+        print("test")
+        with open(audio_file_path, "wb") as audio_file:
+            content = await audio_translation.audio_file.read()
+            audio_file.write(content)
 
         # Transcribe audio using AssemblyAI
         transcriber = aai.Transcriber()
-        transcript = transcriber.transcribe(url)
+        transcript = transcriber.transcribe(audio_file_path)
         english_text = transcript.text
 
         # Translate English text to Tamil
