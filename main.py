@@ -7,8 +7,17 @@ import pygame
 import requests
 import os
 from io import BytesIO
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 aai.settings.api_key = "488d4da6a90d4c67b93b99866def037f"
 
