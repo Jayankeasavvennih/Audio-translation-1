@@ -50,11 +50,11 @@ hpack==3.0.0
 
 hstspreload==2024.5.1
 
-httpcore
+httpcore==0.13.2
 
 httptools
 
-httpx
+httpx==0.25.1
 
 hyperframe==5.2.0
 
