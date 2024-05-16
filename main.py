@@ -22,21 +22,21 @@ app.add_middleware(
 
 aai.settings.api_key = "488d4da6a90d4c67b93b99866def037f"
 
-class AudioTranslation(BaseModel):
-    audio_file: UploadFile
+# class AudioTranslation(BaseModel):
+#     audio_file: UploadFile
 
 @app.post("/translate")
-async def translate_audio(audio_translation: AudioTranslation):
+async def translate_audio(audio_file: UploadFile = File(...)):
     try:
         # Create a directory to store the audio files within the server
         upload_dir = "uploaded_audio"
         os.makedirs(upload_dir, exist_ok=True)
+        
         # Save the uploaded audio file to disk
-        audio_file_path = os.path.join(upload_dir, audio_translation.audio_file.filename)
-        print("test")
-        with open(audio_file_path, "wb") as audio_file:
-            content = await audio_translation.audio_file.read()
-            audio_file.write(content)
+        audio_file_path = os.path.join(upload_dir, audio_file.filename)
+        with open(audio_file_path, "wb") as file:
+            content = await audio_file.read()
+            file.write(content)
 
         # Transcribe audio using AssemblyAI
         transcriber = aai.Transcriber()
@@ -50,24 +50,15 @@ async def translate_audio(audio_translation: AudioTranslation):
 
         # Convert Tamil text to speech
         tts = gt.gTTS(text=tamil_text, lang='ta')
-        audio_file = BytesIO()
-        tts.write_to_fp(audio_file)
-        audio_file.seek(0)
+        audio_output = BytesIO()
+        tts.write_to_fp(audio_output)
+        audio_output.seek(0)
 
         # Save the audio file
-        output_path = "audio/output.mp3"  # Define your desired output path
+        output_path = "audio/output.mp3"
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, "wb") as f:
-            f.write(audio_file.read())
-
-        # Play the audio file
-        pygame.mixer.init()
-        pygame.mixer.music.load(output_path)
-        pygame.mixer.music.play()
-
-        # Wait until the audio finishes playing
-        while pygame.mixer.music.get_busy():
-            pygame.time.Clock().tick(10)
+            f.write(audio_output.read())
 
         return {"message": "Audio generated successfully", "output_path": output_path}
 
