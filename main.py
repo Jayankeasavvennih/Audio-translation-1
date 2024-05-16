@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from pydantic import BaseModel
 import assemblyai as aai
-from googletrans import Translator
+from googletrans import Translator, LANGUAGES
 import gtts as gt
 import pygame
 import requests
@@ -42,11 +42,35 @@ async def translate_audio(audio_file: UploadFile = File(...)):
         transcriber = aai.Transcriber()
         transcript = transcriber.transcribe(audio_file_path)
         english_text = transcript.text
+        print("english_text",english_text)
 
         # Translate English text to Tamil
-        translator = Translator()
-        translation = translator.translate(english_text, src='en', dest='ta')
-        tamil_text = translation.text
+        # translator = Translator()
+        # print("translator",translator)
+        # try:
+        #     translation = translator.translate(english_text, src='en', dest='ta')
+        #     tamil_text = translation.text
+        # except Exception as e:
+        #     raise HTTPException(status_code=500, detail=f"Translation failed: {str(e)}")
+        # print("tamil_text",tamil_text)
+
+        # Translate English text to Tamil using MyMemory API
+        try:
+            response = requests.get(
+                "https://api.mymemory.translated.net/get",
+                params={
+                    "q": english_text,
+                    "langpair": "en|ta"
+                }
+            )
+            response.raise_for_status()
+            translation = response.json()
+            tamil_text = translation['responseData']['translatedText']
+        except requests.RequestException as e:
+            raise HTTPException(status_code=500, detail=f"Translation failed: {str(e)}")
+
+        print("tamil_text", tamil_text)
+        
 
         # Convert Tamil text to speech
         tts = gt.gTTS(text=tamil_text, lang='ta')
