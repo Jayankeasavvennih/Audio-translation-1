@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import assemblyai as aai
 from googletrans import Translator, LANGUAGES
@@ -92,6 +93,19 @@ async def translate_audio(audio_file: UploadFile = File(...)):
 @app.get("/")
 async def read_root():
     return {"message": "welcome"}
+
+@app.get("/audio/output.mp3")
+async def get_images():   
+    # Construct the full file path
+    full_file_path = os.path.join("audio", "output.mp3")
+
+    # Check if the file exists
+    if not os.path.exists(full_file_path):
+        error_message = {'success': False, 'errors': "FILE_NOT_FOUND"}
+        raise HTTPException(status_code=404, detail=error_message)
+
+    # Return the file as response
+    return FileResponse(full_file_path)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
